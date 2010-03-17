@@ -153,7 +153,7 @@ struct dentry;
 
 struct fb_fix_screeninfo {
 	char id[16];			/* identification string eg "TT Builtin" */
-	unsigned long smem_start;	/* Start of frame buffer mem */
+	resource_size_t smem_start;	/* Start of frame buffer mem */
 					/* (physical address) */
 	__u32 smem_len;			/* Length of frame buffer mem */
 	__u32 type;			/* see FB_TYPE_*		*/
@@ -163,7 +163,7 @@ struct fb_fix_screeninfo {
 	__u16 ypanstep;			/* zero if no hardware panning  */
 	__u16 ywrapstep;		/* zero if no hardware ywrap    */
 	__u32 line_length;		/* length of a line in bytes    */
-	unsigned long mmio_start;	/* Start of Memory Mapped I/O   */
+	resource_size_t mmio_start;	/* Start of Memory Mapped I/O   */
 					/* (physical address) */
 	__u32 mmio_len;			/* Length of Memory Mapped I/O  */
 	__u32 accel;			/* Indicate to driver which	*/

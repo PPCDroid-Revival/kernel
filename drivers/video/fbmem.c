@@ -1324,8 +1324,8 @@ fb_mmap(struct file *file, struct vm_area_struct * vma)
 	int fbidx = iminor(file->f_path.dentry->d_inode);
 	struct fb_info *info = registered_fb[fbidx];
 	struct fb_ops *fb = info->fbops;
-	unsigned long off;
-	unsigned long start;
+	resource_size_t off;
+	resource_size_t start;
 	u32 len;
 
 	if (vma->vm_pgoff > (~0UL >> PAGE_SHIFT))
