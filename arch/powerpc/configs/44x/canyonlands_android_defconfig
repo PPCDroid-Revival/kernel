@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # Linux kernel version: 2.6.32.10
-# Thu Apr  8 20:22:08 2010
+# Tue Apr 13 16:55:33 2010
 #
 # CONFIG_PPC64 is not set
 
@@ -1361,7 +1361,8 @@ CONFIG_RTC_INTF_SYSFS=y
 CONFIG_RTC_INTF_PROC=y
 CONFIG_RTC_INTF_DEV=y
 # CONFIG_RTC_INTF_DEV_UIE_EMUL is not set
-# CONFIG_RTC_INTF_ALARM is not set
+CONFIG_RTC_INTF_ALARM=y
+CONFIG_RTC_INTF_ALARM_DEV=y
 # CONFIG_RTC_DRV_TEST is not set
 
 #

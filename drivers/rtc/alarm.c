@@ -13,7 +13,6 @@
  *
  */
 
-#include <asm/mach/time.h>
 #include <linux/android_alarm.h>
 #include <linux/device.h>
 #include <linux/miscdevice.h>
@@ -401,7 +400,9 @@ static int alarm_suspend(struct platform_device *pdev, pm_message_t state)
 		rtc_current_timespec.tv_nsec = 0;
 		rtc_tm_to_time(&rtc_current_rtc_time,
 			       &rtc_current_timespec.tv_sec);
-		save_time_delta(&rtc_delta, &rtc_current_timespec);
+		set_normalized_timespec(&rtc_delta,
+				xtime.tv_sec - rtc_current_timespec.tv_sec,
+				xtime.tv_nsec - rtc_current_timespec.tv_nsec);
 
 		rtc_alarm_time = timespec_sub(ktime_to_timespec(
 			hrtimer_get_expires(&wakeup_queue->timer)),
