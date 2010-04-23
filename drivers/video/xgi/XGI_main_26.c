@@ -2956,6 +2956,7 @@ int __devinit xgifb_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 			
 	
 	    }
+	    iounmap(XGIhw_ext.pjVideoMemoryAddress);
 	}
 #ifdef LINUXBIOS
 	else 
