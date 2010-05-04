@@ -1,3 +1,6 @@
+0.9.3
+reduce size mapping at first XGIInitNew and unmapping.
+rename LINUXBIOS to NOBIOS.
 0.9.2
 support 36 bit PCI address.
 0.9.1

@@ -47,14 +47,14 @@
 #include "vb_struct.h"
 #include "vb_def.h"
 
-#define LINUXBIOS   /* turn this on when compiling for LINUXBIOS */
+#define NOBIOS  
 #define AGPOFF     /* default is turn off AGP */
 
 #define XGIFAIL(x) do { printk(x "\n"); return -EINVAL; } while(0)
 
 #define VER_MAJOR                 0
 #define VER_MINOR                 9
-#define VER_LEVEL                 2
+#define VER_LEVEL                 3
 
 #define DRIVER_DESC  "XGI Volari Frame Buffer Module Version 0.8.1"
 

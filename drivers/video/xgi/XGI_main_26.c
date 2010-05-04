@@ -955,7 +955,7 @@ static int XGIfb_do_set_var(struct fb_var_screeninfo *var, int isactive,
 		xgi_video_info.refresh_rate = 60;
 	}
 
-xgi_video_info.refresh_rate = 60;
+    xgi_video_info.refresh_rate = 60;
 
 	printk(KERN_DEBUG "XGIfb: Change mode to %dx%dx%d-%dHz\n",
 		var->xres,var->yres,var->bits_per_pixel,xgi_video_info.refresh_rate);
@@ -1000,14 +1000,14 @@ xgi_video_info.refresh_rate = 60;
 			printk(KERN_ERR "XGIfb: Setting mode[0x%x] failed\n", XGIfb_mode_no);
 			return -EINVAL;
 		}
-	info->fix.line_length = ((info->var.xres_virtual * info->var.bits_per_pixel)>>6);
+	    info->fix.line_length = ((info->var.xres_virtual * info->var.bits_per_pixel)>>6);
  
-	outXGIIDXREG(XGISR,IND_XGI_PASSWORD,XGI_PASSWORD);
+	    outXGIIDXREG(XGISR,IND_XGI_PASSWORD,XGI_PASSWORD);
 
-		outXGIIDXREG(XGICR,0x13,(info->fix.line_length & 0x00ff));
-		outXGIIDXREG(XGISR,0x0E,(info->fix.line_length & 0xff00)>>8);
+	    outXGIIDXREG(XGICR,0x13,(info->fix.line_length & 0x00ff));
+	    outXGIIDXREG(XGISR,0x0E,(info->fix.line_length & 0xff00)>>8);
 
-		XGIfb_post_setmode();
+	    XGIfb_post_setmode();
 
 		DPRINTK("XGIfb: Set new mode: %dx%dx%d-%d \n",
 			XGIbios_mode[xgifb_mode_idx].xres,
@@ -1063,10 +1063,10 @@ xgi_video_info.refresh_rate = 60;
     	}
 	}
 	XGIfb_bpp_to_var(var); /*update ARGB info*/
-orXGIIDXREG(XGISR, IND_XGI_MODULE_ENABLE, XGI_ENABLE_2D);
-orXGIIDXREG(XGISR, IND_XGI_PCI_ADDRESS_SET, (XGI_PCI_ADDR_ENABLE | XGI_MEM_MAP_IO_ENABLE));
-outXGIIDXREG(XGISR, 0x26, 0x01);
-outXGIIDXREG(XGISR, 0x26, 0x22);
+    orXGIIDXREG(XGISR, IND_XGI_MODULE_ENABLE, XGI_ENABLE_2D);
+    orXGIIDXREG(XGISR, IND_XGI_PCI_ADDRESS_SET, (XGI_PCI_ADDR_ENABLE | XGI_MEM_MAP_IO_ENABLE));
+    outXGIIDXREG(XGISR, 0x26, 0x01);
+    outXGIIDXREG(XGISR, 0x26, 0x22);
 
 	DEBUGPRN("End of do_set_var");
 
@@ -1351,7 +1351,7 @@ static int XGIfb_pan_display( struct fb_var_screeninfo *var,
 static int XGIfb_blank(int blank, struct fb_info *info)
 {
 	u8 reg;
-return 0;
+    return 0;
 	inXGIIDXREG(XGICR, 0x17, reg);
 
 	if(blank > 0)
@@ -1359,10 +1359,10 @@ return 0;
 	else
 		reg |= 0x80;
 
-        outXGIIDXREG(XGICR, 0x17, reg);		
+    outXGIIDXREG(XGICR, 0x17, reg);		
 	outXGIIDXREG(XGISR, 0x00, 0x01);    /* Synchronous Reset */
 	outXGIIDXREG(XGISR, 0x00, 0x03);    /* End Reset */
-printk("\nXGIfb_blank: blank=%d",blank);
+    printk("\nXGIfb_blank: blank=%d",blank);
         return(0);
 }
 
@@ -1586,7 +1586,7 @@ static int XGIfb_get_fix(struct fb_fix_screeninfo *fix, int con,
 	return 0;
 }
 
-
+#ifdef CONFIG_PHYS_ADDR_T_64BIT
 
 static int XGIfb_mmap(struct fb_info *info, struct vm_area_struct *vma) {
 
@@ -1621,7 +1621,7 @@ static int XGIfb_mmap(struct fb_info *info, struct vm_area_struct *vma) {
 
         return 0;
 }
-
+#endif
 static struct fb_ops XGIfb_ops = {
 	.owner        =	THIS_MODULE,
 	.fb_open      = XGIfb_open,
@@ -1636,7 +1636,9 @@ static struct fb_ops XGIfb_ops = {
 	.fb_fillrect  = fbcon_XGI_fillrect,
 	.fb_copyarea  = fbcon_XGI_copyarea,
 	.fb_imageblit = cfb_imageblit,
+#ifdef CONFIG_PHYS_ADDR_T_64BIT
         .fb_mmap      = XGIfb_mmap,
+#endif
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,15)
 	.fb_cursor    = soft_cursor,	
 #endif
@@ -1656,7 +1658,7 @@ static int XGIfb_get_dram_size(void)
 	u8  reg = 0;
 
 
-	        inXGIIDXREG(XGISR, IND_XGI_DRAM_SIZE, reg);
+        inXGIIDXREG(XGISR, IND_XGI_DRAM_SIZE, reg);
 		switch ((reg & XGI_DRAM_SIZE_MASK) >> 4) {
 		   case XGI_DRAM_SIZE_1MB:
 			xgi_video_info.video_size = 0x100000;
@@ -2048,8 +2050,8 @@ static int XGIfb_heap_init(void)
 	
 		cmd_type = MMIO_CMD;
 
-	  XGIfb_heap_end -= COMMAND_QUEUE_AREA_SIZE;
- 		XGIfb_heap_size -= COMMAND_QUEUE_AREA_SIZE;
+        XGIfb_heap_end -= COMMAND_QUEUE_AREA_SIZE;
+        XGIfb_heap_size -= COMMAND_QUEUE_AREA_SIZE;
 
 		outXGIIDXREG(XGISR, IND_XGI_CMDQUEUE_THRESHOLD, COMMAND_QUEUE_THRESHOLD);
 		outXGIIDXREG(XGISR, IND_XGI_CMDQUEUE_SET, XGI_CMD_QUEUE_RESET);
@@ -2375,9 +2377,9 @@ static void XGIfb_pre_setmode(void)
 		cr31 |= (XGI_DRIVER_MODE | XGI_VB_OUTPUT_DISABLE);
 	}
 
-	outXGIIDXREG(XGICR, IND_XGI_SCRATCH_REG_CR30, cr30);
-	outXGIIDXREG(XGICR, IND_XGI_SCRATCH_REG_CR31, cr31);
-        outXGIIDXREG(XGICR, IND_XGI_SCRATCH_REG_CR33, (XGIfb_rate_idx & 0x0F));
+    outXGIIDXREG(XGICR, IND_XGI_SCRATCH_REG_CR30, cr30);
+    outXGIIDXREG(XGICR, IND_XGI_SCRATCH_REG_CR31, cr31);
+    outXGIIDXREG(XGICR, IND_XGI_SCRATCH_REG_CR33, (XGIfb_rate_idx & 0x0F));
 
 	if(xgi_video_info.accel) XGIfb_syncaccel();
 
@@ -2425,9 +2427,9 @@ static void XGIfb_post_setmode(void)
 		reg &= ~0x80;
 	else 	      
 		reg |= 0x80;
-	outXGIIDXREG(XGICR, 0x17, reg);
+    outXGIIDXREG(XGICR, 0x17, reg);
 
-        andXGIIDXREG(XGISR, IND_XGI_RAMDAC_CONTROL, ~0x04);
+    andXGIIDXREG(XGISR, IND_XGI_RAMDAC_CONTROL, ~0x04);
 
 	if((xgi_video_info.disp_state & DISPTYPE_TV) && (xgi_video_info.hasVB == HASVB_301)) {
 
@@ -2781,15 +2783,15 @@ int __devinit xgifb_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	  xgi_video_info.subsysdevice = pdev->subsystem_device;
 	
 	
-	switch (xgi_video_info.chip_id) {
-           case PCI_DEVICE_ID_XG_21:
+      switch (xgi_video_info.chip_id) {
+        case PCI_DEVICE_ID_XG_21:
                 XGIhw_ext.b20A1ECOIDIs21 = true;
                 xgi_video_info.chip = XG21  ;
                 XGIfb_hwcursor_size = HW_CURSOR_AREA_SIZE_315 * 2;
                 XGIfb_CRT2_write_enable = IND_XGI_CRT2_WRITE_ENABLE_315;
-	   break;
+	    break;
 
-	   case PCI_DEVICE_ID_XG_20:
+	    case PCI_DEVICE_ID_XG_20:
 		xgi_video_info.chip = XG20;
 		XGIfb_hwcursor_size = HW_CURSOR_AREA_SIZE_315 * 2;
 		XGIfb_CRT2_write_enable = IND_XGI_CRT2_WRITE_ENABLE_315;
@@ -2816,8 +2818,8 @@ int __devinit xgifb_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 		break;
 
 
-           default:
-	        return -ENODEV;
+        default:
+	    return -ENODEV;
 	}
         //	  printk("XGIfb:chipid = %x\n",xgi_video_info.chip);
         XGIhw_ext.jChipType = xgi_video_info.chip;
@@ -2836,10 +2838,10 @@ int __devinit xgifb_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
         XGIfb_mmio_size =  pci_resource_len(pdev, 1);
 
 //	  if(!XGIvga_enabled) {
-	      printk("XGIfb: Enable PCI device\n");
+	    printk("XGIfb: Enable PCI device\n");
 	      
-	      if (pci_enable_device(pdev))   
-	          return -EIO;
+	    if(pci_enable_device(pdev))   
+	        return -EIO;
 //	  }
 
 	
@@ -2862,28 +2864,28 @@ int __devinit xgifb_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
         if(reg1 & GPIOG_READ)
         {
 */
-            xgi_video_info.chip = XG21;
-            XGIhw_ext.jChipType = XG21;
+        xgi_video_info.chip = XG21;
+        XGIhw_ext.jChipType = XG21;
 //        }
    
     }
 
 
 	
-		switch (xgi_video_info.chip) {
-		   case XG40:
-		   case XG41:
-		   case XG42:
-		   case XG45:
-		   case XG20:
-		   case XG21:
-       case XG27:
+      switch (xgi_video_info.chip) {
+        case XG40:
+        case XG41:
+        case XG42:
+        case XG45:
+        case XG20:
+        case XG21:
+        case XG27:
             XGIhw_ext.bIntegratedMMEnabled = TRUE;
 			break;
 
-		   default:
+        default:
 			break;
-		}
+      }
 	
 
 	  XGIhw_ext.pDevice = NULL;
@@ -2899,7 +2901,7 @@ int __devinit xgifb_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	      } else  
 	      {
 
-	          printk(KERN_INFO "XGIfb: Video ROM not found\n");
+//	          printk(KERN_INFO "XGIfb: Video ROM not found\n");
 	      }
     } else 
     {
@@ -2913,7 +2915,7 @@ int __devinit xgifb_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	  strcpy(XGIhw_ext.szVBIOSVer, "0.85");
 
 
-    XGIhw_ext.pSR = vmalloc(sizeof(XGI_DSReg) * SR_BUFFER_SIZE);
+      XGIhw_ext.pSR = vmalloc(sizeof(XGI_DSReg) * SR_BUFFER_SIZE);
 	  if (XGIhw_ext.pSR == NULL) 
 	  {
 		    printk(KERN_ERR "XGIfb: Fatal error: Allocating SRReg space failed.\n");
@@ -2939,9 +2941,9 @@ int __devinit xgifb_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	    XGIhw_ext.pjVideoMemoryAddress = ioremap(xgi_video_info.video_base, 0x10000000);
 	    if((xgifb_mode_idx < 0) || ((XGIbios_mode[xgifb_mode_idx].mode_no) != 0xFF)) 
 	    { 
-#ifdef LINUXBIOS
+#ifdef NOBIOS
 		printk("XGIfb: XGIInit() ...");
-		/* XGIInitNewt for LINUXBIOS only */
+		
 		if(XGIInitNew(&XGIhw_ext))
 		{
 			printk("OK\n");
@@ -2953,15 +2955,13 @@ int __devinit xgifb_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 #endif
 
 		outXGIIDXREG(XGISR, IND_XGI_PASSWORD, XGI_PASSWORD);
-			
+		iounmap(XGIhw_ext.pjVideoMemoryAddress);	
 	
 	    }
-	    iounmap(XGIhw_ext.pjVideoMemoryAddress);
 	}
-#ifdef LINUXBIOS
+#ifdef NOBIOS
 	else 
 	{
-//	    XGIhw_ext.pjVideoMemoryAddress = ioremap(xgi_video_info.video_base, 0x10000000);
 	    if((xgifb_mode_idx < 0) || ((XGIbios_mode[xgifb_mode_idx].mode_no) != 0xFF)) 
 	    { 
 				  
@@ -2976,8 +2976,8 @@ int __devinit xgifb_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	    }
 	}
 #endif
-                outXGIIDXREG(XGISR, IND_XGI_PASSWORD, XGI_PASSWORD);
- printk("determine which Z chip\n"); 
+    outXGIIDXREG(XGISR, IND_XGI_PASSWORD, XGI_PASSWORD);
+ 
     if (xgi_video_info.chip == XG27)
     {
         inXGIIDXREG(XGISR, 0x3B, reg);
@@ -2992,14 +2992,10 @@ int __devinit xgifb_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
        	    outXGIIDXREG(XGISR, 0x13, 0x45);
        	    outXGIIDXREG(XGISR, 0x14, 0x51);
        	}
-
     }
     else if (xgi_video_info.chip == XG21)
     {
-
         andXGIIDXREG(XGICR, 0xB4, (~0x02));     		/* Independent GPIO control */
-
-printk("-");
      	udelay(800);
      	orXGIIDXREG(XGICR, 0x4A, 0x80);        	/* Enable GPIOH read */
         inXGIIDXREG(XGICR, 0x48, reg);
@@ -3027,44 +3023,25 @@ printk("-");
 	
 
 
-//	  if((xgifb_mode_idx < 0) || ((XGIbios_mode[xgifb_mode_idx].mode_no) != 0xFF)) 
-//	  { 
-	       /* Enable PCI_LINEAR_ADDRESSING and MMIO_ENABLE  */
-        orXGIIDXREG(XGISR, IND_XGI_PCI_ADDRESS_SET, (XGI_PCI_ADDR_ENABLE | XGI_MEM_MAP_IO_ENABLE));
-         /* Enable 2D accelerator engine */
-        orXGIIDXREG(XGISR, IND_XGI_MODULE_ENABLE, XGI_ENABLE_2D);
-//    }
-#if 0
-	  XGIhw_ext.ulVideoMemorySize = xgi_video_info.video_size;
+       /* Enable PCI_LINEAR_ADDRESSING and MMIO_ENABLE  */
+      orXGIIDXREG(XGISR, IND_XGI_PCI_ADDRESS_SET, (XGI_PCI_ADDR_ENABLE | XGI_MEM_MAP_IO_ENABLE));
+        /* Enable 2D accelerator engine */
+      orXGIIDXREG(XGISR, IND_XGI_MODULE_ENABLE, XGI_ENABLE_2D);
 
-	  if (!request_mem_region(xgi_video_info.video_base, xgi_video_info.video_size, "XGIfb FB")) 
-	  {         printk("unable request memory size %x",xgi_video_info.video_size);
-		    printk(KERN_ERR "XGIfb: Fatal error: Unable to reserve frame buffer memory\n");
-		    printk(KERN_ERR "XGIfb: Is there another framebuffer driver active?\n");
-		    vfree(XGIhw_ext.pSR);
-		    vfree(XGIhw_ext.pCR);
-		    return -ENODEV;
-	  }
-#endif
-
- while(!request_mem_region(xgi_video_info.video_base, xgi_video_info.video_size, "XGIfb FB"))
-{
-    printk("unable request memory size %x",xgi_video_info.video_size);
+      while(!request_mem_region(xgi_video_info.video_base, xgi_video_info.video_size, "XGIfb FB"))
+      {
+          printk("unable request memory size %x",xgi_video_info.video_size);
    
-    if(xgi_video_info.video_size < 0x400000)
-    {
-        printk(KERN_ERR "XGIfb: Fatal error: Unable to reserve frame buffer memory\n"); 
-        vfree(XGIhw_ext.pSR);
-        vfree(XGIhw_ext.pCR);
-        return -ENODEV;
-    }
-    
-    printk("try again! half size \n ");
-    xgi_video_info.video_size = xgi_video_info.video_size >> 1;
-
-}
-
-
+          if(xgi_video_info.video_size < 0x400000)
+          {
+              printk(KERN_ERR "XGIfb: Fatal error: Unable to reserve frame buffer memory\n"); 
+              vfree(XGIhw_ext.pSR);
+              vfree(XGIhw_ext.pCR);
+              return -ENODEV;
+          }
+          printk("try again! half size \n ");
+          xgi_video_info.video_size = xgi_video_info.video_size >> 1;
+      }
 
 	  if (!request_mem_region(xgi_video_info.mmio_base, XGIfb_mmio_size, "XGIfb MMIO")) 
 	  {
@@ -3074,16 +3051,7 @@ printk("-");
 		    vfree(XGIhw_ext.pCR);
 		    return -ENODEV;
 	  }
-#if 0
-	  xgi_video_info.video_vbase = XGIhw_ext.pjVideoMemoryAddress = 
-		ioremap(xgi_video_info.video_base, xgi_video_info.video_size);
-if(xgi_video_info.video_vbase==0)
-{
-         xgi_video_info.video_vbase = XGIhw_ext.pjVideoMemoryAddress =
-         ioremap(xgi_video_info.video_base, xgi_video_info.video_size>>1);
 
-}
-#endif
 
     xgi_video_info.video_vbase= ioremap(xgi_video_info.video_base, xgi_video_info.video_size);
     while(!xgi_video_info.video_vbase) /*can't remapping memory*/
@@ -3096,8 +3064,8 @@ if(xgi_video_info.video_vbase==0)
             return -ENODEV;
         }
     }
-XGIhw_ext.pjVideoMemoryAddress = xgi_video_info.video_vbase;
-XGIhw_ext.ulVideoMemorySize = xgi_video_info.video_size;
+    XGIhw_ext.pjVideoMemoryAddress = xgi_video_info.video_vbase;
+    XGIhw_ext.ulVideoMemorySize = xgi_video_info.video_size;
 
 	  xgi_video_info.mmio_vbase = ioremap(xgi_video_info.mmio_base, XGIfb_mmio_size);
 
@@ -3129,67 +3097,59 @@ XGIhw_ext.ulVideoMemorySize = xgi_video_info.video_size;
 	  { 
 	      xgi_video_info.hasVB = HASVB_NONE;            
         if((xgi_video_info.chip == XG20)||(xgi_video_info.chip == XG21)||(xgi_video_info.chip == XG27))
-{
-
+        {
             xgi_video_info.hasVB = HASVB_NONE;            
-}        else
+        }else
 		    XGIfb_get_VB_type();
 
 		    XGIhw_ext.ujVBChipID = VB_CHIP_UNKNOWN;
 
 		    XGIhw_ext.ulExternalChip = 0;
 
-		switch (xgi_video_info.hasVB) {
-		case HASVB_301:
+		    switch (xgi_video_info.hasVB) {
+		    case HASVB_301:
 		        inXGIIDXREG(XGIPART4, 0x01, reg);
-			if (reg >= 0xE0) {
-				XGIhw_ext.ujVBChipID = VB_CHIP_302LV;
-				printk(KERN_INFO "XGIfb: XGI302LV bridge detected (revision 0x%02x)\n",reg);
-	  		} else if (reg >= 0xD0) {
-				XGIhw_ext.ujVBChipID = VB_CHIP_301LV;
-				printk(KERN_INFO "XGIfb: XGI301LV bridge detected (revision 0x%02x)\n",reg);
-	  		} 
-			/* else if (reg >= 0xB0) {
-				XGIhw_ext.ujVBChipID = VB_CHIP_301B;
-				inXGIIDXREG(XGIPART4,0x23,reg1);
-			       printk("XGIfb: XGI301B bridge detected\n");	
-			}*/
-			else {
-				XGIhw_ext.ujVBChipID = VB_CHIP_301;
-				printk("XGIfb: XGI301 bridge detected\n");
-			}
-			break;
-		case HASVB_302:
+			    if (reg >= 0xE0) {
+				    XGIhw_ext.ujVBChipID = VB_CHIP_302LV;
+				    printk(KERN_INFO "XGIfb: XGI302LV bridge detected (revision 0x%02x)\n",reg);
+	  		    } else if (reg >= 0xD0) 
+	  		    {
+				    XGIhw_ext.ujVBChipID = VB_CHIP_301LV;
+				    printk(KERN_INFO "XGIfb: XGI301LV bridge detected (revision 0x%02x)\n",reg);
+	  		    } 
+			    else {
+ 				    XGIhw_ext.ujVBChipID = VB_CHIP_301;
+				    printk("XGIfb: XGI301 bridge detected\n");
+			    }
+			    break;
+		    case HASVB_302:
 		        inXGIIDXREG(XGIPART4, 0x01, reg);
-			if (reg >= 0xE0) {
-				XGIhw_ext.ujVBChipID = VB_CHIP_302LV;
-				printk(KERN_INFO "XGIfb: XGI302LV bridge detected (revision 0x%02x)\n",reg);
-	  		} else if (reg >= 0xD0) {
-				XGIhw_ext.ujVBChipID = VB_CHIP_301LV;
-				printk(KERN_INFO "XGIfb: XGI302LV bridge detected (revision 0x%02x)\n",reg);
-	  		} else if (reg >= 0xB0) {
-				inXGIIDXREG(XGIPART4,0x23,reg1);
-
+			    if (reg >= 0xE0) {
+				    XGIhw_ext.ujVBChipID = VB_CHIP_302LV;
+				    printk(KERN_INFO "XGIfb: XGI302LV bridge detected (revision 0x%02x)\n",reg);
+	  		    } else if (reg >= 0xD0) {
+				    XGIhw_ext.ujVBChipID = VB_CHIP_301LV;
+				    printk(KERN_INFO "XGIfb: XGI302LV bridge detected (revision 0x%02x)\n",reg);
+	  		    } else if (reg >= 0xB0) {
+				    inXGIIDXREG(XGIPART4,0x23,reg1);
 			        XGIhw_ext.ujVBChipID = VB_CHIP_302B;
-
-			} else {
+			    } else {
 			        XGIhw_ext.ujVBChipID = VB_CHIP_302;
 				printk(KERN_INFO "XGIfb: XGI302 bridge detected\n");
-			}
-			break;
-		case HASVB_LVDS:
-			XGIhw_ext.ulExternalChip = 0x1;
-			printk(KERN_INFO "XGIfb: LVDS transmitter detected\n");
-			break;
-
- 		default:
+			    }
+			    break;
+		    case HASVB_LVDS:
+			    XGIhw_ext.ulExternalChip = 0x1;
+			    printk(KERN_INFO "XGIfb: LVDS transmitter detected\n");
+ 			    break;
+ 		    default:
 			//printk(KERN_INFO "XGIfb: No or unknown bridge type detected\n");
-			break;
+			    break;
 		}
 
 		if (xgi_video_info.hasVB != HASVB_NONE) {
 		    XGIfb_detect_VB();
-    }
+        }
 
 		if (xgi_video_info.disp_state & DISPTYPE_DISP2) {
 			if (XGIfb_crt1off)
@@ -3213,8 +3173,8 @@ XGIhw_ext.ulVideoMemorySize = xgi_video_info.video_size;
 		}
 		
 		XGIfb_detectedpdc = 0;
-	        XGIfb_detectedlcda = 0xff;
-#ifndef LINUXBIOS
+	    XGIfb_detectedlcda = 0xff;
+#ifndef NOBIOS
 
                 /* TW: Try to find about LCDA */
 		
@@ -3384,9 +3344,9 @@ XGIhw_ext.ulVideoMemorySize = xgi_video_info.video_size;
 #endif
 
 		if(register_framebuffer(fb_info) < 0)
-    {
+        {
 			return -EINVAL;
-    }
+        }
 			
 		XGIfb_registered = 1;			
 
@@ -3627,13 +3587,13 @@ MODULE_PARM_DESC(nocrt2rate,
 
 int __init xgifb_init_module(void)
 {
-        printk("\nXGIfb_init_module");
+    printk("\nXGIfb_init_module");
 	if(mode)
 		XGIfb_search_mode(mode);
 	else if (vesa != -1)
 		XGIfb_search_vesamode(vesa);
 
-        return(xgifb_init());
+    return(xgifb_init());
 }
 
 static void __exit xgifb_remove_module(void)
