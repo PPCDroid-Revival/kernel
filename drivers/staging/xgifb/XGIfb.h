@@ -72,7 +72,9 @@ struct xgifb_video_info {
 	unsigned long mmio_size;
 	void __iomem *mmio_vbase;
 	unsigned long vga_base;
+#ifdef CONFIG_MTRR
 	unsigned long mtrr;
+#endif /* CONFIG_MTRR */
 
 	int    video_bpp;
 	int    video_cmap_len;

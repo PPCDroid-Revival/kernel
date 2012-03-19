@@ -2019,7 +2019,9 @@ static int __devinit xgifb_probe(struct pci_dev *pdev,
 	if (!XGIInitNew(pdev))
 		pr_err("XGIInitNew() failed!\n");
 
+#ifdef CONFIG_MTRR
 	xgifb_info->mtrr = (unsigned int) 0;
+#endif /* CONFIG_MTRR */
 
 	xgifb_info->hasVB = HASVB_NONE;
 	if ((xgifb_info->chip == XG20) ||
