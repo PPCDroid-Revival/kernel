@@ -33,6 +33,7 @@
 #ifdef CONFIG_MTRR
 #include <asm/mtrr.h>
 #endif
+#include <asm/fb.h>
 
 #include "XGIfb.h"
 #include "vgatypes.h"
@@ -1602,6 +1603,43 @@ static int XGIfb_blank(int blank, struct fb_info *info)
 	return 0;
 }
 
+static int XGIfb_mmap(struct fb_info *info, struct vm_area_struct *vma)
+{
+	struct xgifb_video_info *xgifb_info = info->par;
+	resource_size_t start;
+	u32 len;
+	resource_size_t off;
+
+	off = vma->vm_pgoff << PAGE_SHIFT;
+	printk("XGI MMAP: %Lx %lx %lx\n", off, vma->vm_start, vma->vm_end);
+
+	/* frame buffer memory */
+	start = xgifb_info->video_base;
+
+	len = PAGE_ALIGN((start & ~PAGE_MASK) + xgifb_info->video_size);
+	if (off >= len) {
+		/* memory mapped io */
+		off -= len;
+		if (info->var.accel_flags)
+			return -EINVAL;
+		start = xgifb_info->mmio_base;
+		len = PAGE_ALIGN((start & ~PAGE_MASK) + xgifb_info->mmio_size);
+	}
+	start &= PAGE_MASK;
+	if ((vma->vm_end - vma->vm_start + off) > len)
+		return -EINVAL;
+	off += start;
+	vma->vm_pgoff = off >> PAGE_SHIFT;
+	/* This is an IO map - tell maydump to skip this VMA */
+	vma->vm_flags |= VM_IO | VM_RESERVED;
+	vma->vm_page_prot = vm_get_page_prot(vma->vm_flags);
+//	fb_pgprotect(file, vma, off);
+	if (io_remap_pfn_range(vma, vma->vm_start, off >> PAGE_SHIFT,
+			     vma->vm_end - vma->vm_start, vma->vm_page_prot))
+		return -EAGAIN;
+	return 0;
+}
+
 static struct fb_ops XGIfb_ops = {
 	.owner = THIS_MODULE,
 	.fb_open = XGIfb_open,
@@ -1614,7 +1652,7 @@ static struct fb_ops XGIfb_ops = {
 	.fb_fillrect = cfb_fillrect,
 	.fb_copyarea = cfb_copyarea,
 	.fb_imageblit = cfb_imageblit,
-	/* .fb_mmap = XGIfb_mmap, */
+	.fb_mmap = XGIfb_mmap,
 };
 
 /* ---------------- Chip generation dependent routines ---------------- */
