@@ -33,6 +33,7 @@ static inline struct task_struct *get_current(void)
  * We keep `current' in r2 for speed.
  */
 register struct task_struct *current asm ("r2");
+#define get_current() current
 
 #endif
 
