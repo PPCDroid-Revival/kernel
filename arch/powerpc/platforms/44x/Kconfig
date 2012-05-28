@@ -124,6 +124,7 @@ config CANYONLANDS
 	select PPC4xx_MSI
 	select IBM_EMAC_RGMII
 	select IBM_EMAC_ZMII
+	select DEFAULT_UIMAGE
 	help
 	  This option enables support for the AMCC PPC460EX evaluation board.
 
