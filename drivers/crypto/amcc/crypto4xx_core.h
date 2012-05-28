@@ -69,7 +69,6 @@ struct pd_uinfo {
 
 struct crypto4xx_device {
 	struct crypto4xx_core_device *core_dev;
-	char *name;
 	u64  ce_phy_address;
 	void __iomem *ce_base;
 

@@ -19,6 +19,7 @@
  */
 
 #include <linux/kernel.h>
+#include <linux/module.h>
 #include <linux/interrupt.h>
 #include <linux/spinlock_types.h>
 #include <linux/random.h>
@@ -1153,7 +1154,7 @@ struct crypto4xx_alg_common crypto4xx_alg[] = {
 /**
  * Module Initialization Routine
  */
-static int __init crypto4xx_probe(struct platform_device *ofdev)
+static int __devinit crypto4xx_probe(struct platform_device *ofdev)
 {
 	int rc;
 	struct resource res;
@@ -1219,7 +1220,7 @@ static int __init crypto4xx_probe(struct platform_device *ofdev)
 	/* Register for Crypto isr, Crypto Engine IRQ */
 	core_dev->irq = irq_of_parse_and_map(ofdev->dev.of_node, 0);
 	rc = request_irq(core_dev->irq, crypto4xx_ce_interrupt_handler, 0,
-			 core_dev->dev->name, dev);
+			 dev_name(core_dev->device), dev);
 	if (rc)
 		goto err_request_irq;
 
@@ -1260,7 +1261,7 @@ err_alloc_dev:
 	return rc;
 }
 
-static int __exit crypto4xx_remove(struct platform_device *ofdev)
+static int __devexit crypto4xx_remove(struct platform_device *ofdev)
 {
 	struct device *dev = &ofdev->dev;
 	struct crypto4xx_core_device *core_dev = dev_get_drvdata(dev);
@@ -1289,7 +1290,7 @@ static struct platform_driver crypto4xx_driver = {
 		.of_match_table = crypto4xx_match,
 	},
 	.probe		= crypto4xx_probe,
-	.remove		= crypto4xx_remove,
+	.remove		= __devexit_p(crypto4xx_remove),
 };
 
 module_platform_driver(crypto4xx_driver);
