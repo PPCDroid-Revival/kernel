@@ -114,8 +114,9 @@ static int __init ppc460ex_canyonlands_fixup(void)
 	 * USB2HStop and gpio19 will be USB2DStop. For more details refer to
 	 * table 34-7 of PPC460EX user manual.
 	 */
-	setbits32((vaddr + GPIO0_OSRH), 0x42000000);
-	setbits32((vaddr + GPIO0_TSRH), 0x42000000);
+	setbits32((vaddr + GPIO0_OSRH), 0x41000000);
+	setbits32((vaddr + GPIO0_TSRH), 0x55500150);
+
 err_gpio:
 	iounmap(vaddr);
 err_bcsr:
