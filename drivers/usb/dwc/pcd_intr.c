@@ -422,12 +422,15 @@ static int dwc_otg_pcd_handle_np_tx_fifo_empty_intr(struct dwc_pcd *pcd)
 	}
 
 	/* Clear nptxfempty interrupt */
-	gintsts |= DWC_INTMSK_RXFIFO_NOT_EMPT;
+	gintsts |= DWC_INTMSK_NP_TXFIFO_EMPT;
 	dwc_reg_write(global_regs, DWC_GINTSTS, gintsts);
 
 	/* Re-enable tx-fifo empty interrupt, if packets are stil pending */
 	if (len)
-		dwc_reg_modify(global_regs, DWC_GINTSTS, 0, gintsts);
+		dwc_reg_modify(global_regs, DWC_GINTSTS, gintsts, gintsts);
+	else
+                dwc_reg_modify(global_regs, DWC_GINTMSK, gintsts, 0);
+
 	return 1;
 }
 
@@ -456,7 +459,7 @@ static int write_empty_tx_fifo(struct dwc_pcd *pcd, u32 epnum)
 	 */
 	len = ep->dwc_ep.xfer_len - ep->dwc_ep.xfer_count;
 	dwords = count_dwords(ep, len);
-	while (DWC_DTXFSTS_TXFSSPC_AVAI_RD(txstatus) > dwords
+	while (DWC_DTXFSTS_TXFSSPC_AVAI_RD(txstatus) >= dwords
 	       && ep->dwc_ep.xfer_count < ep->dwc_ep.xfer_len
 	       && ep->dwc_ep.xfer_len != 0) {
 		dwc_otg_ep_write_packet(core_if, &ep->dwc_ep, 0);
@@ -970,7 +973,6 @@ static void do_gadget_setup(struct dwc_pcd *pcd, struct usb_ctrlrequest *ctrl)
 {
 	if (pcd->driver && pcd->driver->setup) {
 		int ret;
-
 		spin_unlock(&pcd->lock);
 		ret = pcd->driver->setup(&pcd->gadget, ctrl);
 		spin_lock(&pcd->lock);
@@ -1076,8 +1078,7 @@ static void pcd_clear_halt(struct dwc_pcd *pcd, struct pcd_ep *ep)
 			 * set this next_ep number. Otherwise the endpoint
 			 * will not get active again after stalling.
 			 */
-			if (dwc_has_feature(core_if, DWC_LIMITED_XFER))
-				dwc_start_next_request(ep);
+			dwc_start_next_request(ep);
 		}
 	}
 
@@ -1610,8 +1611,7 @@ static void dwc_otg_ep0_continue_transfer(struct core_if *c_if,
 			dwc_reg_write(glbl_regs, DWC_GINTSTS, intr_mask);
 
 			/* To avoid spurious NPTxFEmp intr */
-			dwc_reg_modify(glbl_regs, DWC_GINTMSK, intr_mask,
-				     intr_mask);
+			dwc_reg_modify(glbl_regs, DWC_GINTMSK, intr_mask, 0);
 		}
 	}
 }
@@ -1832,6 +1832,7 @@ static void handle_in_ep_timeout_intr(struct dwc_pcd *pcd, const u32 ep_num)
 
 	/* Non-periodic EP */
 	/* Enable the Global IN NAK Effective Interrupt */
+	intr_mask = 0; /* bug fix: clear intr_mask */
 	intr_mask |= DWC_INTMSK_GLBL_IN_NAK;
 	dwc_reg_modify((core_if->core_global_regs), DWC_GINTMSK, 0,
 		     intr_mask);
@@ -1858,9 +1859,13 @@ static void handle_in_ep_timeout_intr(struct dwc_pcd *pcd, const u32 ep_num)
 static void handle_in_ep_tx_fifo_empty_intr(struct dwc_pcd *pcd,
 					    struct pcd_ep *ep, u32 num)
 {
-	u32 diepint = 0;
+	u32 diepint = 0, deptsiz;
+	struct device_if *dev_if = GET_CORE_IF(pcd)->dev_if;
+	ulong in_regs = dev_if->in_ep_regs[num];
 
-	if (!ep->stopped && num) {
+	deptsiz = dwc_reg_read(in_regs, DWC_DIEPTSIZ);
+
+	if (!ep->stopped && num && (DWC_DEPTSIZ_PKT_CNT_RD(deptsiz) == 0)) {
 		u32 diepmsk = 0;
 
 		diepmsk = DWC_DIEPMSK_IN_TKN_TX_EMPTY_RW(diepmsk, 1);

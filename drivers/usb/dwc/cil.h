@@ -43,6 +43,7 @@
 #include <linux/dmapool.h>
 #include <linux/spinlock.h>
 #include <linux/usb/otg.h>
+#include <linux/module.h>
 
 #include "regs.h"
 
@@ -84,7 +85,7 @@ static inline void dwc_reg_modify(ulong reg, u32 offset, const u32 _clear_mask,
 			& ~_clear_mask) | _set_mask);
 #else
 	out_be32((unsigned __iomem *)(reg + offset),
-			(in_be32(((unsigned __iomem *))(reg + offset))
+			(in_be32((unsigned __iomem *)(reg + offset))
 			& ~_clear_mask) | _set_mask);
 #endif
 };

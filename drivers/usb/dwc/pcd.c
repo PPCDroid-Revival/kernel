@@ -1634,7 +1634,7 @@ int __devinit dwc_otg_pcd_init(struct device *dev)
 	else
 		pr_info("Shared Tx FIFO mode\n");
 
-	pcd->gadget.is_dualspeed = check_is_dual_speed(core_if);
+	pcd->gadget.max_speed = USB_SPEED_HIGH;
 	pcd->gadget.is_otg = check_is_otg(core_if);
 
 	/* Register the gadget device */
@@ -1692,10 +1692,12 @@ err:
 /**
  * Cleanup the PCD.
  */
-void __devexit dwc_otg_pcd_remove(struct device *dev)
+void dwc_otg_pcd_remove(struct device *dev)
 {
 	struct dwc_otg_device *otg_dev = dev_get_drvdata(dev);
 	struct dwc_pcd *pcd = otg_dev->pcd;
+
+	usb_del_gadget_udc(&pcd->gadget);
 
 	/* Free the IRQ */
 	free_irq(otg_dev->irq, pcd);
@@ -1738,8 +1740,10 @@ static int dwc_gadget_start(struct usb_gadget_driver *driver,
 			    int (*bind) (struct usb_gadget *))
 {
 	int retval;
+	struct device_if *dev_if = (GET_CORE_IF(s_pcd))->dev_if;
+	u32 dctl;
 
-	if (!driver || driver->speed == USB_SPEED_UNKNOWN || !bind ||
+	if (!driver || driver->max_speed == USB_SPEED_UNKNOWN || !bind ||
 	    !driver->unbind || !driver->disconnect || !driver->setup)
 		return -EINVAL;
 
@@ -1765,6 +1769,12 @@ static int dwc_gadget_start(struct usb_gadget_driver *driver,
 		s_pcd->gadget.dev.driver = NULL;
 		return retval;
 	}
+
+	/* Remove Soft Disconnect */
+	dctl = dwc_reg_read(dev_if->dev_global_regs, DWC_DCTL);
+	dctl = DWC_DCTL_SFT_DISCONNECT(dctl, 0);
+	dwc_reg_write(dev_if->dev_global_regs, DWC_DCTL, dctl);
+
 	return 0;
 }
 
